@@ -1,0 +1,342 @@
+<!doctype html>
+<!--
+  For licensing see accompanying LICENSE file.
+  Copyright (C) 2026 Apple Inc. All Rights Reserved.
+-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Velox Results</title>
+    <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./assets/gallery.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  </head>
+  <body>
+<div style="max-width: 800px; margin: 40px auto; text-align:center;">
+
+
+
+    <h1 style="margin-bottom:10px; font-size:36px;">
+    Velox 🚀: Learning Representations <br> of 4D Geometry and Appearance
+    </h1>
+
+        <!-- Authors -->
+    <!-- Authors -->
+    <p style="font-size:15px; margin-bottom:6px; line-height:1.5;">
+        <a href="https://anaghmalik.com" target="_blank" style="text-decoration:none;">
+            Anagh Malik<sup>1,2</sup>,
+        </a>
+        <a href="https://dorianchan.com/" target="_blank" style="text-decoration:none;">
+            Dorian Chan<sup>1</sup>,
+        </a>
+        <a href="https://xiaoming-zhao.com/" target="_blank" style="text-decoration:none;">
+            Xiaoming Zhao<sup>1</sup>,
+        </a>
+        <a href="https://davidlindell.com/" target="_blank" style="text-decoration:none;">
+            David B. Lindell<sup>2</sup>,
+        </a>
+        <a href="https://www.onceltuzel.net/" target="_blank" style="text-decoration:none;">
+            Oncel Tuzel<sup>1</sup>,
+        </a>
+        <a href="https://rick-chang.github.io/" target="_blank" style="text-decoration:none;">
+            Jen-Hao Rick Chang<sup>1</sup>
+        </a>
+    </p>
+
+    <!-- Affiliations -->
+    <p style="font-size:14px; margin-bottom:20px; opacity:0.75; line-height:1.4;">
+        <sup>1</sup> Apple &nbsp;&nbsp;&nbsp;
+        <sup>2</sup> University of Toronto
+    </p>
+
+    <!-- Top Buttons -->
+<div style="margin-bottom:25px; display:flex; gap:12px; justify-content:center;">
+
+    <a href="https://arxiv.org/abs/2605.04527" target="_blank"
+       style="padding:6px 14px; border:1px solid #ddd; border-radius:8px; 
+              font-size:15px; text-decoration:none; color:#444; opacity:0.9;">
+        📄 Arxiv
+    </a>
+
+    <a href="https://github.com/apple/ml-velox" target="_blank"
+       style="padding:6px 14px; border:1px solid #ddd; border-radius:8px; 
+              font-size:15px; text-decoration:none; color:#444; opacity:0.9;">
+        💻 Code
+    </a>
+
+        <a href="./index.html" 
+       style="padding:6px 14px; border:1px solid #ddd; border-radius:8px; 
+              font-size:15px; text-decoration:none; color:#444; opacity:0.9;">
+        🏠 Homepage
+    </a>
+
+    <a href="./video_gallery.html" 
+       style="padding:6px 14px; border:1px solid #ddd; border-radius:8px; 
+              font-size:15px; text-decoration:none; color:#444; opacity:0.9;">
+        🖼️ Gallery
+    </a>
+
+</div>
+</div>
+
+
+
+
+    <div id="main">
+        <div id="gallery">
+            <!-- Videos -->
+            <h1>Video Gallery</h1>
+            <div id="navbar">
+                <button class="nav active" tag="reconstruction">Reconstruction</button>
+                <button class="nav" tag="video4d">Video-to-4D</button>
+                <button class="nav" tag="cloth">Cloth Simulation</button>
+                <button class="nav" tag="tracking">Tracking</button>
+                <button class="nav" tag="limitation">Failure cases</button>
+            </div>
+            <div id="task_text"></div>
+            <div id="video_container"></div>
+            <div class="load_more">
+                <button id="load_more" onclick="load_more()">Load More</button>
+            </div>
+        </div>
+    </div>
+
+    <footer style="margin-top: 3rem; padding: 1.5rem 1rem; border-top: 1px solid #e5e5e5; font-size: 12px; color: #666; text-align: justify; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;">
+        <p>All 3D assets used for reconstruction or generation on this website were licensed under Creative Commons or other permissive licenses as of the time of publication (May 2026).</p>
+        <p>All generated samples are licensed under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.</p>
+        <p style="margin-top: 0.75rem;">Copyright &copy; 2026 Apple Inc. All rights reserved.</p>
+    </footer>
+
+
+    <script src="./assets/obj_ids.js"></script>
+
+
+
+
+    <script>
+        function attributionHtml(obj_id) {
+            const c = gallery_creators[obj_id];
+            if (!c) return '';
+            const license = c.license || "CC Attribution";
+            return `<p class="gallery-attribution">The original 3D asset was created by @${c.handle} and is distributed under the ${license} license. We accessed it from <a href="${c.url}" target="_blank" rel="noopener noreferrer">here</a> in March 2026.</p>`;
+        }
+
+        task_key = "reconstruction";
+
+        vis_increment = 5;
+        curr_vis = -vis_increment;
+
+        main_element = document.getElementById("video_container");
+
+
+        navbar = document.getElementById("navbar")
+        nav_buttons = navbar.querySelectorAll(".nav");
+
+        nav_buttons.forEach(element => {
+            element.addEventListener('click', function() {
+                // first, remove active class from object with active
+                curr_nav = navbar.querySelectorAll(".active")[0];
+                curr_nav.classList.remove('active');
+                element.classList.add('active');
+                task_key = element.getAttribute("tag");
+
+
+                // clear current videos
+                main_element.innerHTML = '';
+                
+                // reload with new task_key
+                curr_vis = -vis_increment;
+                load_more();
+            });
+        })
+        
+
+        task_text_element = document.getElementById("task_text")
+        function create_videos(ids) {
+            if (task_key == "reconstruction") {
+                // Add text once at the top before any reconstruction videos
+                task_text_element.innerHTML = `<p style="text-align:center; font-size:16px; margin:16px 0;">Our encoder takes as input a spatiotemporal color point cloud and compresses them into dynamic tokens. These can be decoded into 3D Gaussians. Here we show the videos rendered from the 3D Gaussians for two separate views, comparing also against the frame-based LiTo and deformation-based GVF. </p>`;
+            } else if (task_key == "video4d") {
+                // Add text once at the top before any reconstruction videos
+                task_text_element.innerHTML = `<p style="text-align:center; font-size:16px; margin:16px 0;">From a single input video, we reconstruct a dynamic 3D object. Here we show the generated dynamic 3D object both from the original view and the full 360° render.</p>`;
+            } else if (task_key == "cloth") {
+                // Add text once at the top before any reconstruction videos
+                task_text_element.innerHTML =  `<p style="text-align:center; font-size:16px; margin:16px 0;">Given a single input frame of the initial position of the cloth, we learn to simulate the cloth's 4D falling trajectory. Here we visualize a reference video (from a mesh-based simulator) and the generated trajectory for the same view. We also visualize the full 360° video.</p>`;
+            } else if (task_key == "tracking") {
+                // Add text once at the top before any reconstruction videos
+                task_text_element.innerHTML =  `<p style="text-align:center; font-size:16px; margin:16px 0;">Given dynamic tokens of an RGBD video, we train a model to track query points from the first frame across the 3D video. Here we visualize the tracked points' errors across both our method and baselines, SpatialTrackerV2 (STv2) and CoTracker3.</p>`;
+            } else {
+                task_text_element.innerHTML = '';
+            }
+            for (let i = 0; i < ids.length; i++) {
+                obj_id = ids[i];
+
+                if (task_key == "reconstruction") {
+                    video_template = `<div class="obj_header"><hr/></div><div class="obj_container c4">
+                        <video class="full" autoplay loop  muted> <source src="./assets/videos/reconstruction/${obj_id}_00.mp4" type="video/mp4" /></video>
+                        <div class="obj_label">View 0</div>
+                        <div class="v1">Ground truth</div>
+                        <div class="v2" style="font-weight: bold">Ours</div>
+                        <div class="v3">LiTo</div>
+                        <div class="v4">GVF</div>
+                        
+                    </div><br><div class="obj_container c4">
+                        <video class="full" autoplay loop  muted> <source src="./assets/videos/reconstruction/${obj_id}_05.mp4" type="video/mp4" /></video>
+                        <div class="v1">Ground truth</div>
+                        <div class="v2" style="font-weight: bold">Ours</div>
+                        <div class="v3">LiTo</div>
+                        <div class="v4">GVF</div>
+                        <div class="obj_label">View 1</div>
+                    </div>${attributionHtml(obj_id)}<div class="obj_bottom"></div>`;
+                } else if(task_key == "video4d") {
+                    video_template = `<div class="obj_header"><hr/></div><div class="obj_container c4">
+                        <video class="full" autoplay loop  muted> <source src="./assets/videos/video4d/${obj_id}_inputview.mp4" type="video/mp4" /></video>
+                        <div class="obj_label">Input view</div>
+                        <div class="v1">Input</div>
+                        <div class="v2" style="font-weight: bold">Ours</div>
+                        <div class="v3">L4GM</div>
+                        <div class="v4">GVF</div>
+                    </div>
+                    <br>
+                    <div class="obj_container c3">
+                        <video class="full" autoplay loop  muted> <source src="./assets/videos/video4d/${obj_id}_viz.mp4" type="video/mp4" /></video>
+                        <div class="obj_label">Novel views</div>
+                        <div class="v1" style="font-weight: bold">Ours</div>
+                        <div class="v2">L4GM</div>
+                        <div class="v3">GVF</div>
+                    </div>${attributionHtml(obj_id)}<div class="obj_bottom"></div>`;
+                }
+                else if(task_key == "cloth") {
+                    video_template = `<div class="obj_header"><hr/></div>
+                    <div class="obj_container c4">
+                        <div class="cloth_container">
+                            <img src="./assets/videos/cloth/${obj_id}.png" style="width:25%;" />
+                            <video  style="width:50%;" autoplay loop  muted> <source src="./assets/videos/cloth/${obj_id}_inputview.mp4" type="video/mp4" /></video>
+                            <video autoplay loop  muted style="width: 25%;"> <source src="./assets/videos/cloth/${obj_id}_viz.mp4" type="video/mp4" /></video>
+                        </div>
+                        <div class="obj_label">Input view</div>
+                        <div class="v1">Input image</div>
+                        <div class="v2">Reference video</div>
+                        <div class="v3" style="font-weight: bold">Ours</div>
+                        <div class="v4" style="font-weight: bold">Ours</div>
+                        <div class="right_label">Novel views</div>
+                    </div>
+                    <br><div class="obj_bottom"></div>`;
+                } else if(task_key == "limitation") {
+                    climitation = obj_id;
+                    cobjs = climitation.obj_ids;
+                    ctitle = climitation.title;
+                    cdescription = climitation.description;
+
+                    video_template = `
+                        <h2>${ctitle}</h2>
+                        <p style="font-size: 16px;">${cdescription}</p>`;
+                    
+                    cobjs.forEach(cobj=>{
+                        cid = cobj.id;
+                        if (cobj.type == "video4d") {
+                            video_template += `<div class="obj_header"><hr/><b>video-to-4d</b></div><div class="obj_container c4">
+                                <video class="full" autoplay loop  muted> <source src="./assets/videos/limitation/${cid}_inputview.mp4" type="video/mp4" /></video>
+                                <div class="obj_label">Input view</div>
+                                <div class="v1">Input</div>
+                                <div class="v2" style="font-weight: bold">Ours</div>
+                                <div class="v3">L4GM</div>
+                                <div class="v4">GVF</div>
+                            </div>
+                            <br>
+                            <div class="obj_container c3">
+                                <video class="full" autoplay loop  muted> <source src="./assets/videos/limitation/${cid}_viz.mp4" type="video/mp4" /></video>
+                                <div class="obj_label">Novel views</div>
+                                <div class="v1" style="font-weight: bold">Ours</div>
+                                <div class="v2">L4GM</div>
+                                <div class="v3">GVF</div>
+                            </div>${attributionHtml(cid)}<div class="obj_bottom"></div>`;
+                        } else if (cobj.type == "reconstruction") {
+                            video_template += `<div class="obj_header"><hr/><b>reconstruction</b></div><div class="obj_container c4">
+                                <video class="full" autoplay loop  muted> <source src="./assets/videos/limitation/${cid}_00.mp4" type="video/mp4" /></video>
+                                <div class="obj_label">View 0</div>
+                                <div class="v1">Ground truth</div>
+                                <div class="v2" style="font-weight: bold">Ours</div>
+                                <div class="v3">LiTo</div>
+                                <div class="v4">GVF</div>
+                                
+                            </div><br><div class="obj_container c4">
+                                <video class="full" autoplay loop  muted> <source src="./assets/videos/limitation/${cid}_05.mp4" type="video/mp4" /></video>
+                                <div class="v1">Ground truth</div>
+                                <div class="v2" style="font-weight: bold">Ours</div>
+                                <div class="v3">LiTo</div>
+                                <div class="v4">GVF</div>
+                                <div class="obj_label">View 1</div>
+                            </div>${attributionHtml(cid)}<div class="obj_bottom"></div>`;
+                        }
+                    })
+                } else if(task_key == "tracking") {
+                    video_template = `<div class="obj_header"><hr/></div><div class="obj_container c5">
+                        <video class="full" autoplay loop  muted> <source src="./assets/videos/tracking/combined2d_${obj_id}.mp4" type="video/mp4" /></video>
+                        <div class="v1">Input video</div>
+                        <div class="v2">Ground truth</div>
+                        <div class="v3" style="font-weight: bold">Ours</div>
+                        <div class="v4">CoTracker3</div>
+                        <div class="v5">STv2</div>
+
+                    </div>${attributionHtml(obj_id)}<div class="obj_bottom"></div>`;
+                }
+                 // v_node = htmlToNodes(video_template);
+                main_element.insertAdjacentHTML('beforeend', video_template);
+            }
+        }
+        
+
+        button_load = document.getElementById("load_more");
+        function load_more() {
+            curr_vis = curr_vis + vis_increment;
+            create_videos(obj_data[task_key].slice(curr_vis, curr_vis + vis_increment));
+            if (curr_vis + vis_increment >= obj_data[task_key].length) {
+                button_load.style.display = 'none';
+            } else {
+                button_load.style.display = 'inline-block';
+            }
+        }
+
+
+        //create_videos(obj_data[task_key].slice(curr_vis, curr_vis + vis_increment));
+        load_more();
+
+        function resumeVideos() {
+            const videos = document.querySelectorAll("#video_container video");
+            videos.forEach((video) => {
+                video.muted = true; // make sure browser is happy with autoplay
+                const p = video.play();
+                if (p && typeof p.catch === "function") {
+                p.catch(() => {
+                    // Ignore autoplay failures (e.g., weird browser policies)
+                });
+                }
+            });
+        }
+
+        // 1) Run once on initial load
+        window.addEventListener("load", resumeVideos);
+
+        // 2) Run again when returning via back/forward cache
+        window.addEventListener("pageshow", (event) => {
+        // event.persisted === true means it's restored from bfcache
+        if (event.persisted) {
+            resumeVideos();
+        } else {
+            // Some browsers don't set persisted but still pause videos
+            resumeVideos();
+        }
+        });
+
+        // 3) Optional: also resume if the tab becomes visible again
+        document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            resumeVideos();
+        }
+        });
+        
+    </script>
+  </body>
+</html>

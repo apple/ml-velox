@@ -1,0 +1,210 @@
+/*
+ * For licensing see accompanying LICENSE file.
+ * Copyright (C) 2026 Apple Inc. All Rights Reserved.
+ */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(35%, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 60%;
+  margin: 0 auto 2rem;
+}
+
+#viewer-container,
+#viewer-container-cloth {
+  position: relative;
+  padding: 0 44px;
+}
+
+#viewer,
+#viewer-cloth {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0;
+  scroll-snap-type: x mandatory;
+  white-space: nowrap;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#viewer::-webkit-scrollbar,
+#viewer-cloth::-webkit-scrollbar {
+  display: none;
+}
+
+#viewer > .card,
+#viewer-cloth > .card {
+  flex: 0 0 auto;
+  width: calc(23% - 0.75rem);
+  scroll-snap-align: start;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card-wrapper .card {
+  width: 100%;
+  flex: none;
+}
+
+#viewer .card:hover,
+#viewer-cloth .card:hover {
+  transform: scale(1.03);
+}
+
+#viewer-indicators,
+#viewer-indicators-cloth {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.viewer-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #d0d0d0;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.viewer-indicator.active {
+  background: #555;
+  transform: scale(1.35);
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: white;
+  border: none;
+  padding: 9px 11px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+.scroll-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+#scroll-left,
+#scroll-left-cloth {
+  left: 6px;
+}
+
+#scroll-right,
+#scroll-right-cloth {
+  right: 6px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.09);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.13);
+}
+
+.card video,
+.card img {
+  width: 100%;
+  margin: 0;
+  display: block;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 0.7rem 0.9rem 0.8rem;
+  z-index: 2;
+}
+
+.card-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card-meta {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin-bottom: 0.4rem;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* --- attribution badge on Gaussian viewer cards --- */
+.card-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+  width: calc(23% - 0.75rem);
+  scroll-snap-align: start;
+}
+
+.attribution-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+  width: 22px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  color: gold;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: background 0.15s;
+}
+
+.attribution-badge:hover {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.attribution-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 200px;
+  background: rgba(20, 20, 20, 0.92);
+  color: #f0f0f0;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 7px 9px;
+  border-radius: 6px;
+  white-space: normal;
+  pointer-events: none;
+  text-align: left;
+}
+
+.attribution-badge:hover .attribution-tooltip {
+  display: block;
+}

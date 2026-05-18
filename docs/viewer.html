@@ -1,0 +1,227 @@
+<meta charset="utf-8">
+<!--
+  For licensing see accompanying LICENSE file.
+  Copyright (C) 2026 Apple Inc. All Rights Reserved.
+-->
+
+<style>
+  body { margin: 0; }
+  #loop-toggle,
+  #reset-view {
+    position: fixed;
+    right: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: 14px system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  #loop-toggle:hover,
+  #reset-view:hover { background: rgba(0, 0, 0, 0.7); }
+  #loop-toggle { top: 12px; }
+  #reset-view  { top: 48px; }
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.178.0/three.module.js",
+    "@sparkjsdev/spark": "https://sparkjs.dev/releases/spark/0.1.10/spark.module.js",
+    "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.178.0/examples/jsm/controls/OrbitControls.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { SplatMesh } from "@sparkjsdev/spark";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+// --- basic Spark+THREE setup (from docs) ---
+const params = new URLSearchParams(window.location.search);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+  60,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+const _camx = parseFloat(params.get("camx") || "3.5");
+const _camy = parseFloat(params.get("camy") || "0");
+const _camz = parseFloat(params.get("camz") || "0");
+camera.position.set(_camx, _camy, _camz);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(new THREE.Color("#" + (params.get("bg") || "000000")), 1);
+document.body.appendChild(renderer.domElement);
+
+
+// orbit control
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;      // smooth motion
+controls.dampingFactor = 0.05;
+controls.target.set(0, 0, 0);       // look at the center (where your splats are)
+controls.update();
+
+
+
+// // ---------- Grid (large so it feels infinite) ----------
+// Major grid: 1 unit spacing
+const majorSize = 200;      // world size of the grid plane
+const majorDivs = majorSize / 1;  // one line every 1 unit
+const majorGrid = new THREE.GridHelper(
+  majorSize,
+  majorDivs,
+  0x444444, // center line color
+  0x444444  // grid color
+);
+majorGrid.material.transparent = true;
+majorGrid.material.opacity = 0.5;
+majorGrid.material.depthTest = true;
+scene.add(majorGrid);
+
+// Minor grid: 0.2 unit spacing
+const minorSpacing = 0.1;
+const minorDivs = majorSize / minorSpacing; 
+const minorGrid = new THREE.GridHelper(
+  majorSize,
+  minorDivs,
+  0x333333, // slightly darker than major
+  0x333333
+);
+minorGrid.material.transparent = true;
+minorGrid.material.opacity = 0.2;
+minorGrid.material.depthTest = true;
+scene.add(minorGrid);
+
+
+
+
+// ---------- Long world axes (simulate “infinite”) ----------
+const AXIS_LEN = 1e5;
+function axisLine(dir, color) {
+  const geom = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3().copy(dir).multiplyScalar(-AXIS_LEN),
+    new THREE.Vector3().copy(dir).multiplyScalar( AXIS_LEN),
+  ]);
+  const mat = new THREE.LineBasicMaterial({ color, depthTest: false, transparent: true, opacity: 0.9 });
+  const line = new THREE.Line(geom, mat);
+  // line.renderOrder = 999; // draw on top
+  return line;
+}
+scene.add(axisLine(new THREE.Vector3(1,0,0), 0xff4d4d)); // X red
+scene.add(axisLine(new THREE.Vector3(0,1,0), 0x4dff4d)); // Y green
+scene.add(axisLine(new THREE.Vector3(0,0,1), 0x4da6ff)); // Z blue
+
+
+// ---- figure out which sequence to load from the URL ----
+// e.g. viewer.html?sequence=walk  → sequenceName = "walk"
+const sequenceName = params.get("sequence") || "fire_bird";
+const fileFormat = params.get("format") || "spz";
+const frameCount = parseInt(params.get("frames") || "24", 10);
+const rotX = parseFloat(params.get("rx") || "-90") * Math.PI / 180;
+let loopMode = params.get("loop") === "forward" ? "forward" : "pingpong";
+
+// Loop-mode toggle button
+const loopButton = document.createElement("button");
+loopButton.id = "loop-toggle";
+loopButton.type = "button";
+document.body.appendChild(loopButton);
+function updateLoopLabel() {
+  loopButton.textContent = loopMode === "forward" ? "→ Forward only" : "↔ Forward & backward";
+}
+updateLoopLabel();
+loopButton.addEventListener("click", () => {
+  loopMode = loopMode === "forward" ? "pingpong" : "forward";
+  updateLoopLabel();
+});
+
+// Reset-view button
+const resetButton = document.createElement("button");
+resetButton.id = "reset-view";
+resetButton.type = "button";
+resetButton.textContent = "↺ Reset view";
+document.body.appendChild(resetButton);
+resetButton.addEventListener("click", () => {
+  controls.reset();
+});
+
+// --- gaussian sequence ---
+
+const frameUrls = Array.from({ length: frameCount }, (_, i) =>
+  `./assets/gaussians/${sequenceName}/${String(i).padStart(3, "0")}.${fileFormat}`
+);
+
+// Create one SplatMesh per frame, initially hidden
+const frames = frameUrls.map((url) => {
+  const mesh = new SplatMesh({
+    url,
+    onLoad: (m) => { m.visible = false; }
+  });
+  mesh.visible = false;
+  mesh.position.set(0, 0, 0);
+  mesh.quaternion.set(1, 0, 0, 0);
+  mesh.rotation.x = rotX;
+  scene.add(mesh);
+  return mesh;
+});
+
+  
+
+// Animation state
+let currentFrame = 0;
+const fps = parseFloat(params.get("fps") || "24");
+const frameDuration = 1 / fps;
+let lastFrameTime = 0;
+
+// Helper: show only one frame
+function setFrame(index) {
+  frames.forEach((m, i) => {
+    m.visible = (i === index);
+  });
+}
+
+// Main render loop
+renderer.setAnimationLoop((timeMs) => {
+  const t = timeMs / 1000; // ms → seconds
+
+  // Switch frame at fixed FPS
+  if (t - lastFrameTime >= frameDuration) {
+    if (loopMode === "forward") {
+      currentFrame = (currentFrame + 1) % frames.length;
+      setFrame(currentFrame);
+    } else {
+      currentFrame = currentFrame + 1;
+
+      let jj;
+      if (currentFrame >= 2 * frames.length) {
+          jj = currentFrame % frames.length;
+          currentFrame = jj;
+      } else if (currentFrame >= frames.length){
+          jj = frames.length - 1 - (currentFrame - frames.length);
+      } else {
+        jj = currentFrame;
+      }
+
+      setFrame(jj);
+    }
+    lastFrameTime = t;
+  }
+
+  controls.update();
+
+  renderer.render(scene, camera);
+});
+
+// Handle resize
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>

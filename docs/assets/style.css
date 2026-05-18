@@ -1,0 +1,319 @@
+/*
+ * For licensing see accompanying LICENSE file.
+ * Copyright (C) 2026 Apple Inc. All Rights Reserved.
+ */
+
+
+html, body {
+    font-size: 16px;
+    font-family: system-ui, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    background-color: #fff;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    overflow: auto;
+    color: #444444;
+    scroll-padding-top: 10%;
+}
+
+
+#main {
+    width: 60%;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 25px;   /* pick your size */
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+#video_container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+video.full {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+}
+
+
+
+.cloth_container {
+    position: relative;
+    width: 100%;
+    display: flex;
+}
+
+.cloth_container > img, .cloth_container > video {
+    margin: 0;
+}
+
+
+.load_more {
+    text-align: center;
+    margin-top: 40px;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+.load_more > button {
+    padding: 5px 15px;
+    background: #007bff; 
+    color: #fff;
+    border: 0px;
+    border-radius: 5px;
+    font-size: 24px;
+    transition: background-color 0.1s ease-in-out;
+}
+.load_more > button:hover {
+    background-color: #014a98;
+}
+
+
+#navbar > button.nav {
+    background: #f0f0f0;
+    color: #444;
+    border: None;
+    border-radius: 5px;
+    padding: 5px 15px;
+    font-size: 20px;
+    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out, border 0.1s ease-in-out;
+}
+#navbar > button.nav:hover {
+    background: #e0e0e0;
+    color: #000;
+}
+#navbar > button.nav.active {
+    background: #007bff;     /* accent for active */
+    color: #fff;
+}
+
+
+.obj_container {
+    position: relative;
+    padding: 0px;
+    margin-top: 2em;
+    margin-bottom: 0px;
+}
+
+/* Pin all column labels above the container top instead of at their default static position */
+.obj_container > div[class^="v"] {
+    top: -1.5em;
+}
+
+.obj_label {
+    display: inline-block;
+    z-index: 2;
+    position: absolute;
+    left: 0px;
+    top: 60%;
+    transform-origin: center;
+    transform: rotate(-90deg) translate(50%, -50%);
+    font-weight: bold;
+
+}
+
+.right_label {
+    display: inline-block;
+    z-index: 2;
+    position: absolute;
+    left: 72%;
+    top: 60%;
+    transform-origin: center;
+    transform: rotate(-90deg) translate(50%, -50%);
+    font-weight: bold;
+
+}
+
+.obj_header {
+    font-weight: normal;
+}
+.obj_bottom {
+    margin-bottom: 60px;
+}
+
+.gallery-attribution {
+    font-size: 13px;
+    opacity: 0.6;
+    text-align: center;
+    margin: 18px 0 0;
+}
+
+.gallery-attribution a {
+    color: inherit;
+}
+
+
+
+
+
+
+
+
+
+
+.c2 > div.v1 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 37.5%;
+    font-size: 1.2em;
+}
+
+.c2 > div.v2 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 62.5%;
+    font-size: 1.2em;
+}
+
+.c1 > .obj_label {
+    left: 25%;
+}
+
+
+.c1 > div.v1 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 50%;
+    font-size: 1.2em;
+}
+
+
+.c4 > div.v1 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 12.5%;
+    font-size: 1.2em;
+}
+
+.c4 > div.v2 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 37.5%;
+    font-size: 1.2em;
+}
+
+.c4 > div.v3 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 62.5%;
+    font-size: 1.2em;
+}
+
+.c4 > div.v4 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 87.5%;
+    font-size: 1.2em;
+}
+
+.c3 > div.v1 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    left: 16.66%;
+    transform: translate(-50%, 0);
+    font-size: 1.2em;
+}
+
+.c3 > div.v2 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    left: 49.95%;
+    transform: translate(-50%, 0);
+    font-size: 1.2em;
+}
+
+.c3 > div.v3 {
+    display: inline-block;
+    text-align: center;
+    max-width: 25%;
+    position: absolute;
+    left: 83.25%;
+    transform: translate(-50%, 0);
+    font-size: 1.2em;
+}
+
+
+
+.c5 > div.v1 {
+    display: inline-block;
+    text-align: center;
+    max-width: 20%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 10%;
+    font-size: 1.2em;
+}
+
+.c5 > div.v2 {
+    display: inline-block;
+    text-align: center;
+    max-width: 20%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 30%;
+    font-size: 1.2em;
+}
+
+.c5 > div.v3 {
+    display: inline-block;
+    text-align: center;
+    max-width: 20%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 50%;
+    font-size: 1.2em;
+}
+
+.c5 > div.v4 {
+    display: inline-block;
+    text-align: center;
+    max-width: 20%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 70%;
+    font-size: 1.2em;
+}
+
+.c5 > div.v5 {
+    display: inline-block;
+    text-align: center;
+    max-width: 20%;
+    position: absolute;
+    transform: translate(-50%, 0);
+    left: 90%;
+    font-size: 1.2em;
+}
