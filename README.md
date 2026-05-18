@@ -16,7 +16,7 @@ We introduce a framework for learning latent representations of 4D objects which
 ## License
 
 - Repository is released under [LICENSE](./LICENSE). 
-- All generated samples provided here are licensed under [LICENSE_generated_samples](LICENSE_DATA).
+- All generated samples provided here are licensed under [LICENSE_DATA](LICENSE_DATA).
 
 ## Acknowledgements
 
