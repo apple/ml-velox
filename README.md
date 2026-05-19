@@ -3,7 +3,7 @@
 This website accompanies the research paper: 
 
 **Velox: Learning Representations of 4D Geometry and Appearance, CVPR 2026.**<br>
-[Anagh Malik](https://anaghmalik.com), [Dorian Chan](https://dorianchan.com/), [Xiaoming Zhao*](https://xiaoming-zhao.com/), [David B. Lindell](https://davidlindell.com), [Oncel Tuzel](https://www.onceltuzel.net),  [Jen-Hao Rick Chang*](https://rick-chang.github.io)
+[Anagh Malik](https://anaghmalik.com), [Dorian Chan](https://dorianchan.com/), [Xiaoming Zhao](https://xiaoming-zhao.com/), [David B. Lindell](https://davidlindell.com), [Oncel Tuzel](https://www.onceltuzel.net),  [Jen-Hao Rick Chang](https://rick-chang.github.io)
 
 
 <p align="center"><a href="https://arxiv.org/abs/2605.04527"><img src='https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white' alt='arXiv'></a>
